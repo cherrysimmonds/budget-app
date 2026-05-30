@@ -123,21 +123,41 @@ function surplus(key) {
   return totalIncome() - totalBills() - totalLoanPayments() - totalExpenses(key);
 }
 
+// ─── Loan Calculations ────────────────────────────────────────────────────────
+//
+// currentBalance is the single source of truth.
+// It reduces when you tick a monthly payment OR record an overpayment.
+// Unticking a month adds the payment back.
+// Overpayments are stored with date for your records and cannot be undone.
+// % paid, remaining balance, and months left all derive from currentBalance.
+
+function loanCurrentBalance(loan) {
+  return Math.max(0, Number(loan.currentBalance || 0));
+}
+
+function loanTotalOverpayments(loan) {
+  return (loan.overpayments || []).reduce((s, p) => s + Number(p.amount), 0);
+}
+
 function loanMonthsRemaining(loan) {
-  const bal = Number(loan.currentBalance);
+  const bal = loanCurrentBalance(loan);
   const pmt = Number(loan.monthlyPayment);
   if (!pmt || bal <= 0) return 0;
-  const r = Number(loan.interestRate || 0) / 100 / 12;
-  if (r === 0) return Math.ceil(bal / pmt);
-  return Math.ceil(-Math.log(1 - (r * bal) / pmt) / Math.log(1 + r));
+  return Math.ceil(bal / pmt);
 }
 
 function loanPayoffDate(loan) {
   const months = loanMonthsRemaining(loan);
-  if (!months || months <= 0) return 'Paid off';
-  const d = new Date();
-  d.setMonth(d.getMonth() + months);
-  return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+  if (!months || months <= 0) return 'Paid off ✓';
+  // Use whichever is later: today or start date
+  let base = new Date();
+  if (loan.startDate) {
+    const [y, m] = loan.startDate.split('-').map(Number);
+    const start = new Date(y, m - 1, 1);
+    if (start > base) base = start;
+  }
+  base.setMonth(base.getMonth() + months);
+  return base.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 }
 
 // ─── Persistence ─────────────────────────────────────────────────────────────
@@ -475,8 +495,9 @@ function editBill(id) {
 }
 
 function deleteBill(id) {
-  if (!confirm('Delete this bill?')) return;
-  mutate(() => { state.data.bills = state.data.bills.filter(b => b.id !== id); });
+  const b = state.data.bills.find(x => x.id === id);
+  if (!confirm(`⚠️ Delete "${b.name}"?\n\nAmount: ${fmt(b.amount)}/month\nCategory: ${b.category}\n\nThis is permanent and cannot be undone. Only delete if this bill no longer exists — use the ✎ edit button to change the amount instead.`)) return;
+  mutate(() => { state.data.bills = state.data.bills.filter(x => x.id !== id); });
 }
 
 function ordinal(n) {
@@ -555,18 +576,19 @@ function renderLoans() {
   const rows = state.data.loans.map(l => {
     const paid = mo.paidLoans.includes(l.id);
     const orig = Number(l.originalAmount);
-    const cur = Number(l.currentBalance);
+    const cur = loanCurrentBalance(l);
+    const extra = loanTotalOverpayments(l);
     const paidOff = orig - cur;
     const pct = Math.min(100, Math.round((paidOff / orig) * 100));
     const months = loanMonthsRemaining(l);
     const payoff = loanPayoffDate(l);
 
     return `
-      <div class="card loan-card ${paid ? 'paid' : ''}">
+      <div class="card loan-card">
         <div class="loan-header">
           <div>
             <div class="loan-name">${esc(l.name)}</div>
-            <div class="loan-meta">Started ${l.startDate} · ${l.interestRate ? l.interestRate + '% APR' : 'No interest'}</div>
+            <div class="loan-meta">Started ${l.startDate} · ${l.interestRate ? l.interestRate + '% APR' : 'No interest'} · Balance auto-calculated</div>
           </div>
           <div class="item-actions">
             <button class="btn-icon" onclick="editLoan('${l.id}')">✎</button>
@@ -575,7 +597,7 @@ function renderLoans() {
         </div>
         <div class="loan-stats">
           <div class="loan-stat">
-            <div class="stat-val">${fmt(l.originalAmount)}</div>
+            <div class="stat-val">${fmt(orig)}</div>
             <div class="stat-label">Original</div>
           </div>
           <div class="loan-stat">
@@ -588,17 +610,24 @@ function renderLoans() {
           </div>
           <div class="loan-stat">
             <div class="stat-val">${months > 0 ? months + ' mo' : '✓'}</div>
-            <div class="stat-label">Remaining</div>
+            <div class="stat-label">Left</div>
           </div>
         </div>
         <div class="loan-progress">
           <div class="progress-bar large"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div class="progress-labels"><span>${pct}% paid off</span><span>Payoff: ${payoff}</span></div>
+          <div class="progress-labels"><span>${pct}% paid off · ${fmt(paidOff)} cleared</span><span>Payoff: ${payoff}</span></div>
         </div>
+        ${extra > 0 ? `
+        <div class="extra-pmt-tag">
+          ＋ ${fmt(extra)} in overpayments across ${(l.overpayments||[]).length} payment${(l.overpayments||[]).length > 1 ? 's' : ''}
+          <div style="margin-top:5px;font-size:10px;opacity:0.85">
+            ${(l.overpayments||[]).map(p => `${monthLabel(p.date)}: ${fmt(p.amount)}`).join(' · ')}
+          </div>
+        </div>` : ''}
         <button class="tick-full ${paid ? 'ticked' : ''}" onclick="toggleLoanPaid('${l.id}', '${mk}')">
-          ${paid ? '✓ Payment made this month' : '○ Mark payment made'}
+          ${paid ? '✓ Payment noted this month' : '○ Note payment made this month'}
         </button>
-        <button class="extra-pmt-btn" onclick="makeExtraPayment('${l.id}')">＋ Extra payment this month</button>
+        <button class="extra-pmt-btn" onclick="makeExtraPayment('${l.id}')">＋ Make an overpayment</button>
       </div>`;
   }).join('');
 
@@ -622,14 +651,13 @@ function toggleLoanPaid(loanId, mk) {
     const loan = state.data.loans.find(l => l.id === loanId);
     if (!loan) return;
     if (idx >= 0) {
+      // Unticking — add the monthly payment back to balance
       mo.paidLoans.splice(idx, 1);
       loan.currentBalance = Math.min(Number(loan.originalAmount), Number(loan.currentBalance) + Number(loan.monthlyPayment));
     } else {
+      // Ticking — reduce balance by monthly payment
       mo.paidLoans.push(loanId);
-      const r = Number(loan.interestRate || 0) / 100 / 12;
-      const interest = r > 0 ? Number(loan.currentBalance) * r : 0;
-      const principal = Number(loan.monthlyPayment) - interest;
-      loan.currentBalance = Math.max(0, Number(loan.currentBalance) - principal);
+      loan.currentBalance = Math.max(0, Number(loan.currentBalance) - Number(loan.monthlyPayment));
     }
   });
 }
@@ -679,28 +707,38 @@ function editLoan(id) {
 }
 
 function deleteLoan(id) {
-  if (!confirm('Delete this loan?')) return;
-  mutate(() => { state.data.loans = state.data.loans.filter(l => l.id !== id); });
+  const l = state.data.loans.find(x => x.id === id);
+  if (loanCurrentBalance(l) > 0) {
+    alert(`🔒 "${l.name}" cannot be deleted yet.\n\nRemaining balance: ${fmt(loanCurrentBalance(l))}\n\nLoans are locked until fully paid off to protect your records. Once the balance reaches £0 you will be able to remove it.`);
+    return;
+  }
+  if (!confirm(`"${l.name}" is fully paid off — well done! Remove it from your records?`)) return;
+  mutate(() => { state.data.loans = state.data.loans.filter(x => x.id !== id); });
 }
 
 function makeExtraPayment(id) {
   const l = state.data.loans.find(x => x.id === id);
+  const cur = loanCurrentBalance(l);
+  const extra = loanTotalOverpayments(l);
   const months = loanMonthsRemaining(l);
-  showModal(`Extra Payment — ${esc(l.name)}`, `
-    <div style="background:#e6f9f2;border:1px solid #0a9e6e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:#0a2a3a">
-      <div style="margin-bottom:4px">Current balance: <strong>${fmt(l.currentBalance)}</strong></div>
-      <div style="margin-bottom:4px">Regular payment: <strong>${fmt(l.monthlyPayment)}/mo</strong></div>
+  showModal(`Overpayment — ${esc(l.name)}`, `
+    <div style="background:#e6f9f2;border:1px solid #0a9e6e;border-radius:10px;padding:12px;margin-bottom:16px;font-size:13px;color:#0a2a3a;line-height:1.7">
+      <div>Current balance: <strong>${fmt(cur)}</strong></div>
+      <div>Regular payment: <strong>${fmt(l.monthlyPayment)}/mo</strong></div>
       <div>Months remaining: <strong>${months}</strong></div>
+      ${extra > 0 ? `<div>Total overpaid to date: <strong>${fmt(extra)}</strong></div>` : ''}
     </div>
-    <label>Extra amount to pay this month (£)</label>
+    <label>Overpayment amount (£)</label>
     <input id="m-extra" type="number" min="1" step="0.01" placeholder="0.00">
-    <p style="font-size:12px;color:#5a8ea8;margin-top:10px">This reduces your balance immediately and shortens your payoff date.</p>
+    <p style="font-size:12px;color:#5a8ea8;margin-top:10px">Permanently stored — reduces your balance and shortens your payoff date immediately. Cannot be undone.</p>
   `, () => {
-    const extra = parseFloat(val('m-extra'));
-    if (isNaN(extra) || extra <= 0) return alert('Please enter a valid amount');
-    if (extra > Number(l.currentBalance)) return alert('Extra payment cannot exceed the remaining balance');
+    const amount = parseFloat(val('m-extra'));
+    if (isNaN(amount) || amount <= 0) return alert('Please enter a valid amount');
+    if (amount > cur) return alert('Overpayment cannot exceed the remaining balance of ' + fmt(cur));
     mutate(() => {
-      l.currentBalance = Math.max(0, Number(l.currentBalance) - extra);
+      if (!l.overpayments) l.overpayments = [];
+      l.overpayments.push({ date: state.currentMonth, amount });
+      l.currentBalance = Math.max(0, Number(l.currentBalance) - amount);
     });
     closeModal();
   });
