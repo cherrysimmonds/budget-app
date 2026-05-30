@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Budget">
+  <meta name="theme-color" content="#0096c7">
+  <title>Budget</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── GitHub Setup Overlay ───────────────────────────────── -->
+<div id="setup-overlay">
+  <div class="setup-logo">💷</div>
+  <div class="setup-title">Budget</div>
+  <p class="setup-sub">Connect your GitHub account to keep your data safe and synced across devices.</p>
+
+  <div class="setup-form">
+    <div class="setup-steps">
+      <strong>One-time setup:</strong>
+      <ol>
+        <li>Go to <strong>github.com → Settings → Developer settings → Personal access tokens → Tokens (classic)</strong></li>
+        <li>Click <strong>Generate new token</strong></li>
+        <li>Give it a name (e.g. "Budget App") and tick the <strong>repo</strong> scope</li>
+        <li>Copy the token and paste it below</li>
+      </ol>
+    </div>
+
+    <div id="setup-error"></div>
+
+    <label>GitHub Personal Access Token</label>
+    <input id="setup-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+
+    <label>Repository name (will be created if it doesn't exist)</label>
+    <input id="setup-repo" placeholder="budget-data" value="budget-data">
+
+    <button id="setup-btn" onclick="submitSetup()">Connect to GitHub</button>
+    <button class="setup-skip" onclick="skipSetup()">Use offline only (data saved to this device)</button>
+  </div>
+</div>
+
+<!-- ── Main App ───────────────────────────────────────────── -->
+<div id="app">
+  <header>
+    <h1>Budget<span>.</span></h1>
+    <span id="sync-status" class="sync saved">✓ Saved</span>
+    <button id="sync-btn" title="Sync now">↻</button>
+    <button id="settings-btn" title="Settings">⚙</button>
+  </header>
+
+  <main>
+    <section id="page-dashboard" class="page active"></section>
+    <section id="page-income" class="page"></section>
+    <section id="page-bills" class="page"></section>
+    <section id="page-expenses" class="page"></section>
+    <section id="page-loans" class="page"></section>
+    <section id="page-savings" class="page"></section>
+  </main>
+
+  <nav id="bottom-nav">
+    <button data-tab="dashboard" class="active">🏠<span>Overview</span></button>
+    <button data-tab="income">💰<span>Income</span></button>
+    <button data-tab="bills">📋<span>Bills</span></button>
+    <button data-tab="expenses">🛒<span>Spend</span></button>
+    <button data-tab="loans">🏦<span>Loans</span></button>
+    <button data-tab="savings">🎯<span>Savings</span></button>
+  </nav>
+</div>
+
+<!-- ── Modal ──────────────────────────────────────────────── -->
+<div id="modal-overlay">
+  <div id="modal">
+    <div id="modal-title"></div>
+    <div id="modal-body"></div>
+    <div class="modal-footer">
+      <button id="modal-cancel">Cancel</button>
+      <button id="modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="github.js"></script>
+<script src="app.js"></script>
+<script>
+  function skipSetup() {
+    document.getElementById('setup-overlay').classList.remove('active');
+    render();
+  }
+</script>
+</body>
+</html>

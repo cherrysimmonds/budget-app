@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Budget App — Screen Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #cceeff 0%, #e8f4f8 50%, #d4f0e8 100%);
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+  }
+  h1 { text-align: center; color: #0a2a3a; font-size: 28px; margin-bottom: 6px; }
+  .subtitle { text-align: center; color: #5a8ea8; font-size: 14px; margin-bottom: 40px; }
+  .screens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    justify-content: center;
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  .screen-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .screen-label { font-size: 13px; font-weight: 700; color: #0a2a3a; text-transform: uppercase; letter-spacing: 1px; }
+  .phone {
+    width: 320px;
+    height: 620px;
+    border-radius: 36px;
+    background: #e8f4f8;
+    background-image: linear-gradient(160deg, #cceeff 0%, #e8f4f8 40%, #f0f8e8 100%);
+    box-shadow: 0 20px 60px rgba(0,100,150,0.2), 0 0 0 8px #ffffff, 0 0 0 10px #b8dcea;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    color: #0a2a3a;
+    font-size: 13px;
+    position: relative;
+  }
+
+  /* ── Header ── */
+  .hdr {
+    background: linear-gradient(135deg, #0096c7 0%, #00b4d8 100%);
+    display: flex; align-items: center;
+    padding: 10px 14px;
+    gap: 8px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,150,199,0.3);
+  }
+  .hdr-title { font-size: 16px; font-weight: 800; flex: 1; letter-spacing: -0.5px; color: #fff; }
+  .hdr-title span { color: rgba(255,255,255,0.65); }
+  .hdr-sync { font-size: 10px; color: rgba(255,255,255,0.85); }
+  .hdr-icon { font-size: 14px; color: rgba(255,255,255,0.8); }
+
+  /* ── Content ── */
+  .content {
+    flex: 1; overflow: hidden; padding: 12px 10px 60px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  /* ── Bottom Nav ── */
+  .nav {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 58px; background: #ffffff;
+    border-top: 1px solid #cde8f4;
+    display: flex;
+    box-shadow: 0 -2px 12px rgba(0,100,150,0.08);
+  }
+  .nav-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 2px; font-size: 16px; color: #7ab0c8;
+  }
+  .nav-btn.active { color: #0096c7; }
+  .nav-btn span { font-size: 8px; text-transform: uppercase; letter-spacing: 0.4px; }
+
+  /* ── Cards ── */
+  .card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #cde8f4;
+    box-shadow: 0 2px 6px rgba(0,100,150,0.07);
+  }
+  .card-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.7px; color: #5a8ea8; margin-bottom: 4px; }
+  .card-big { font-size: 28px; font-weight: 800; letter-spacing: -1px; }
+  .card-sub { font-size: 10px; color: #5a8ea8; margin-top: 2px; }
+  .card-val { font-size: 18px; font-weight: 700; margin-top: 2px; }
+  .card-tiny { font-size: 9px; color: #5a8ea8; }
+  .g { color: #0a9e6e; } .r { color: #d64045; } .b { color: #0096c7; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  /* ── Highlight card ── */
+  .hl-card {
+    background: linear-gradient(135deg, #e6f9f2 0%, #f0fdf8 100%);
+    border-radius: 12px; padding: 16px 12px;
+    border: 1px solid #0a9e6e;
+    text-align: center;
+  }
+  .hl-card.red {
+    background: linear-gradient(135deg, #fdf0f0 0%, #fff5f5 100%);
+    border-color: #d64045;
+  }
+
+  /* ── Page Header ── */
+  .ph { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .ph h2 { font-size: 17px; font-weight: 700; color: #0a2a3a; }
+  .add-btn { background: linear-gradient(135deg, #0096c7, #00b4d8); color: white; border-radius: 16px; padding: 5px 12px; font-size: 11px; font-weight: 700; border: none; box-shadow: 0 2px 8px rgba(0,150,199,0.3); }
+
+  /* ── Breakdown rows ── */
+  .brow { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #daeef7; font-size: 11px; color: #2a4a5a; }
+  .brow:last-child { border-bottom: none; font-weight: 700; font-size: 12px; padding-top: 8px; color: #0a2a3a; }
+
+  /* ── Progress ── */
+  .pbar-wrap { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #5a8ea8; margin-bottom: 6px; }
+  .pbar { flex: 1; height: 5px; background: #d4ecf7; border-radius: 3px; overflow: hidden; }
+  .pfill { height: 100%; background: #0096c7; border-radius: 3px; }
+  .pfill.g { background: #0a9e6e; }
+  .plbl { display: flex; justify-content: space-between; font-size: 9px; color: #5a8ea8; margin-top: 3px; }
+
+  /* ── Section title ── */
+  .stitle { font-size: 9px; text-transform: uppercase; letter-spacing: 0.7px; color: #5a8ea8; margin-bottom: 8px; font-weight: 600; }
+
+  /* ── List items ── */
+  .li {
+    background: #ffffff; border-radius: 10px; padding: 10px 10px 10px 12px;
+    margin-bottom: 6px; display: flex; align-items: center; gap: 8px;
+    border: 1px solid #cde8f4; box-shadow: 0 1px 4px rgba(0,100,150,0.06);
+  }
+  .li.paid { opacity: 0.65; }
+  .li-main { flex: 1; }
+  .li-name { font-size: 12px; font-weight: 500; color: #0a2a3a; }
+  .li-sub { font-size: 10px; color: #5a8ea8; margin-top: 2px; }
+  .li-amt { font-size: 12px; font-weight: 600; color: #0a2a3a; }
+  .tick { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #b8dcea; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #5a8ea8; flex-shrink: 0; }
+  .tick.done { background: #0a9e6e; border-color: #0a9e6e; color: white; }
+  .edit-btns { display: flex; gap: 3px; }
+  .ib { width: 24px; height: 24px; border-radius: 50%; background: #edf6fb; border: 1px solid #cde8f4; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #5a8ea8; }
+
+  /* ── Income toggle ── */
+  .tog { width: 26px; height: 26px; border-radius: 50%; background: #0a9e6e; color: white; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+  .tog.off { background: #edf6fb; border: 1.5px solid #cde8f4; color: #5a8ea8; }
+
+  /* ── Loan card ── */
+  .loan-card { border-radius: 12px; padding: 12px; border: 1px solid #cde8f4; background: #ffffff; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,100,150,0.07); }
+  .loan-name { font-size: 13px; font-weight: 600; color: #0a2a3a; }
+  .loan-meta { font-size: 10px; color: #5a8ea8; margin-bottom: 10px; }
+  .loan-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-bottom: 10px; text-align: center; }
+  .ls-val { font-size: 11px; font-weight: 700; color: #0a2a3a; }
+  .ls-lbl { font-size: 9px; color: #5a8ea8; text-transform: uppercase; }
+  .pbar-lg { height: 8px; border-radius: 4px; }
+  .tick-full { display: block; width: 100%; text-align: center; padding: 8px; border-radius: 8px; border: 1px solid #cde8f4; background: #f0f8fc; color: #5a8ea8; font-size: 11px; margin-top: 8px; }
+  .tick-full.done { background: #e6f9f2; border-color: #0a9e6e; color: #0a9e6e; }
+
+  /* ── Savings ── */
+  .sav-card { border-radius: 12px; padding: 12px; border: 1px solid #cde8f4; background: #ffffff; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,100,150,0.07); }
+  .sav-name { font-size: 13px; font-weight: 600; color: #0a2a3a; }
+  .sav-meta { font-size: 10px; color: #5a8ea8; margin-bottom: 8px; }
+  .sav-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 10px; color: #5a8ea8; }
+  .sav-foot strong { color: #0a2a3a; }
+  .sav-btn { background: #edf6fb; border: 1px solid #cde8f4; color: #0096c7; border-radius: 12px; padding: 4px 10px; font-size: 10px; font-weight: 600; }
+
+  /* ── Month nav ── */
+  .mnav { display: flex; gap: 5px; }
+  .mnav button { width: 24px; height: 24px; border-radius: 50%; background: #edf6fb; border: 1px solid #cde8f4; color: #0a2a3a; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+  .mo-badge { font-size: 11px; color: #5a8ea8; font-weight: 400; }
+
+  .hint { font-size: 9px; color: #5a8ea8; text-align: center; padding: 4px; }
+</style>
+</head>
+<body>
+
+<h1>💷 Budget App — Screen Preview</h1>
+<p class="subtitle">All 6 screens shown at phone size · Double-click this file to open in your browser</p>
+
+<div class="screens">
+
+  <!-- ── SCREEN 1: DASHBOARD ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">🏠 Dashboard</div>
+    <div class="phone">
+      <div class="hdr">
+        <div class="hdr-title">Budget<span>.</span></div>
+        <span class="hdr-sync">✓ Saved</span>
+        <span class="hdr-icon">↻</span>
+        <span class="hdr-icon">⚙</span>
+      </div>
+      <div class="content">
+        <div class="ph">
+          <h2>May 2026</h2>
+          <div class="mnav"><button>‹</button><button>›</button></div>
+        </div>
+        <div class="hl-card">
+          <div class="card-lbl">Monthly Surplus</div>
+          <div class="card-big g">▲ £1,423.50</div>
+          <div class="card-sub">Ahead of plan</div>
+        </div>
+        <div class="grid2">
+          <div class="card"><div class="card-lbl">Total Income</div><div class="card-val g">£5,558.00</div></div>
+          <div class="card"><div class="card-lbl">Committed</div><div class="card-val">£2,934.00</div><div class="card-tiny">Bills + Loans</div></div>
+          <div class="card"><div class="card-lbl">Remaining</div><div class="card-val g">£2,624.00</div></div>
+          <div class="card"><div class="card-lbl">One-off Spend</div><div class="card-val">£1,200.50</div></div>
+        </div>
+        <div class="card">
+          <div class="stitle">Bill & Loan Progress</div>
+          <div class="pbar-wrap"><span>Bills paid: 8/10</span><div class="pbar"><div class="pfill" style="width:80%"></div></div></div>
+          <div class="pbar-wrap"><span>Loans paid: 1/2</span><div class="pbar"><div class="pfill" style="width:50%"></div></div></div>
+        </div>
+        <div class="card">
+          <div class="stitle">Monthly Breakdown</div>
+          <div class="brow"><span>Income</span><span class="g">£5,558.00</span></div>
+          <div class="brow"><span>Bills</span><span>− £1,784.00</span></div>
+          <div class="brow"><span>Loan Repayments</span><span>− £1,150.00</span></div>
+          <div class="brow"><span>One-off Expenses</span><span>− £1,200.50</span></div>
+          <div class="brow"><span>Net Surplus</span><span class="g">£1,423.50</span></div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn active">🏠<span>Overview</span></div>
+        <div class="nav-btn">💰<span>Income</span></div>
+        <div class="nav-btn">📋<span>Bills</span></div>
+        <div class="nav-btn">🛒<span>Spend</span></div>
+        <div class="nav-btn">🏦<span>Loans</span></div>
+        <div class="nav-btn">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 2: INCOME ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">💰 Income</div>
+    <div class="phone">
+      <div class="hdr"><div class="hdr-title">Budget<span>.</span></div><span class="hdr-sync">✓ Saved</span><span class="hdr-icon">↻</span><span class="hdr-icon">⚙</span></div>
+      <div class="content">
+        <div class="ph"><h2>Income</h2><button class="add-btn">+ Add</button></div>
+        <div class="card" style="text-align:center;padding:14px">
+          <div class="card-lbl">Total Monthly Income</div>
+          <div class="card-big g">£5,558.00</div>
+        </div>
+        <div class="li">
+          <div class="tog">✓</div>
+          <div class="li-main"><div class="li-name">Net Salary</div><div class="li-sub">Monthly · Active</div></div>
+          <div class="li-amt">£3,668.00</div>
+          <div class="edit-btns"><div class="ib">✎</div><div class="ib">✕</div></div>
+        </div>
+        <div class="li">
+          <div class="tog">✓</div>
+          <div class="li-main"><div class="li-name">Other Income</div><div class="li-sub">Monthly · Active</div></div>
+          <div class="li-amt">£1,785.00</div>
+          <div class="edit-btns"><div class="ib">✎</div><div class="ib">✕</div></div>
+        </div>
+        <div class="li">
+          <div class="tog">✓</div>
+          <div class="li-main"><div class="li-name">Child Benefit</div><div class="li-sub">Monthly · Active</div></div>
+          <div class="li-amt">£105.00</div>
+          <div class="edit-btns"><div class="ib">✎</div><div class="ib">✕</div></div>
+        </div>
+        <div class="hint">Tap ✓/○ to include/exclude · Tap ✎ to edit amounts</div>
+        <div class="card" style="padding:10px 12px">
+          <div class="stitle">About Income</div>
+          <div style="font-size:10px;color:#5a8ea8;line-height:1.6">Add any regular income here — freelance, rental, benefits. Toggle off in months it doesn't apply.</div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn">🏠<span>Overview</span></div>
+        <div class="nav-btn active">💰<span>Income</span></div>
+        <div class="nav-btn">📋<span>Bills</span></div>
+        <div class="nav-btn">🛒<span>Spend</span></div>
+        <div class="nav-btn">🏦<span>Loans</span></div>
+        <div class="nav-btn">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 3: BILLS ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">📋 Bills</div>
+    <div class="phone">
+      <div class="hdr"><div class="hdr-title">Budget<span>.</span></div><span class="hdr-sync">✓ Saved</span><span class="hdr-icon">↻</span><span class="hdr-icon">⚙</span></div>
+      <div class="content">
+        <div class="ph"><h2>Bills <span class="mo-badge">May 2026</span></h2><button class="add-btn">+ Add</button></div>
+        <div class="grid2">
+          <div class="card"><div class="card-lbl">Total Bills</div><div class="card-val">£1,784.00</div></div>
+          <div class="card"><div class="card-lbl">Paid This Month</div><div class="card-val g">£1,379.00</div></div>
+        </div>
+        <div class="li paid">
+          <div class="tick done">✓</div>
+          <div class="li-main"><div class="li-name">Mortgage</div><div class="li-sub">Housing · due 1st</div></div>
+          <div class="li-amt">£895.00</div>
+          <div class="edit-btns"><div class="ib">✎</div></div>
+        </div>
+        <div class="li paid">
+          <div class="tick done">✓</div>
+          <div class="li-main"><div class="li-name">Council Tax</div><div class="li-sub">Housing · due 1st</div></div>
+          <div class="li-amt">£178.00</div>
+          <div class="edit-btns"><div class="ib">✎</div></div>
+        </div>
+        <div class="li paid">
+          <div class="tick done">✓</div>
+          <div class="li-main"><div class="li-name">Electricity & Gas</div><div class="li-sub">Utilities · due 5th</div></div>
+          <div class="li-amt">£152.00</div>
+          <div class="edit-btns"><div class="ib">✎</div></div>
+        </div>
+        <div class="li">
+          <div class="tick">○</div>
+          <div class="li-main"><div class="li-name">Car Insurance</div><div class="li-sub">Insurance · due 15th</div></div>
+          <div class="li-amt">£87.00</div>
+          <div class="edit-btns"><div class="ib">✎</div></div>
+        </div>
+        <div class="li">
+          <div class="tick">○</div>
+          <div class="li-main"><div class="li-name">Netflix</div><div class="li-sub">Subscriptions · due 22nd</div></div>
+          <div class="li-amt">£18.99</div>
+          <div class="edit-btns"><div class="ib">✎</div></div>
+        </div>
+        <div class="hint">Tap ○ to mark paid · Resets automatically each month</div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn">🏠<span>Overview</span></div>
+        <div class="nav-btn">💰<span>Income</span></div>
+        <div class="nav-btn active">📋<span>Bills</span></div>
+        <div class="nav-btn">🛒<span>Spend</span></div>
+        <div class="nav-btn">🏦<span>Loans</span></div>
+        <div class="nav-btn">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 4: EXPENSES ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">🛒 One-off Spend</div>
+    <div class="phone">
+      <div class="hdr"><div class="hdr-title">Budget<span>.</span></div><span class="hdr-sync">✓ Saved</span><span class="hdr-icon">↻</span><span class="hdr-icon">⚙</span></div>
+      <div class="content">
+        <div class="ph"><h2>Expenses <span class="mo-badge">May 2026</span></h2><button class="add-btn">+ Add</button></div>
+        <div class="card" style="text-align:center;padding:14px">
+          <div class="card-lbl">Total One-off Spend</div>
+          <div class="card-big">£1,200.50</div>
+        </div>
+        <div class="li"><div class="li-main"><div class="li-name">Tesco Weekly Shop</div><div class="li-sub">Food & Drink · 28 May</div></div><div class="li-amt">£94.20</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+        <div class="li"><div class="li-main"><div class="li-name">School trip payment</div><div class="li-sub">Kids · 25 May</div></div><div class="li-amt">£45.00</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+        <div class="li"><div class="li-main"><div class="li-name">Petrol</div><div class="li-sub">Transport · 24 May</div></div><div class="li-amt">£72.50</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+        <div class="li"><div class="li-main"><div class="li-name">Haircut</div><div class="li-sub">Health & Beauty · 20 May</div></div><div class="li-amt">£55.00</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+        <div class="li"><div class="li-main"><div class="li-name">New trainers</div><div class="li-sub">Shopping · 18 May</div></div><div class="li-amt">£89.99</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+        <div class="li"><div class="li-main"><div class="li-name">Restaurant dinner</div><div class="li-sub">Food & Drink · 15 May</div></div><div class="li-amt">£67.40</div><div class="edit-btns"><div class="ib" style="color:#d64045">✕</div></div></div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn">🏠<span>Overview</span></div>
+        <div class="nav-btn">💰<span>Income</span></div>
+        <div class="nav-btn">📋<span>Bills</span></div>
+        <div class="nav-btn active">🛒<span>Spend</span></div>
+        <div class="nav-btn">🏦<span>Loans</span></div>
+        <div class="nav-btn">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 5: LOANS ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">🏦 Loans</div>
+    <div class="phone">
+      <div class="hdr"><div class="hdr-title">Budget<span>.</span></div><span class="hdr-sync">✓ Saved</span><span class="hdr-icon">↻</span><span class="hdr-icon">⚙</span></div>
+      <div class="content">
+        <div class="ph"><h2>Loans</h2><button class="add-btn">+ Add</button></div>
+        <div class="card" style="text-align:center;padding:14px">
+          <div class="card-lbl">Total Monthly Repayments</div>
+          <div class="card-big">£1,150.00</div>
+        </div>
+        <div class="loan-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+            <div><div class="loan-name">Car Finance</div><div class="loan-meta">Started Sep 2023 · 7.9% APR</div></div>
+            <div class="edit-btns"><div class="ib">✎</div><div class="ib" style="color:#d64045">✕</div></div>
+          </div>
+          <div class="loan-stats">
+            <div><div class="ls-val">£18,500</div><div class="ls-lbl">Original</div></div>
+            <div><div class="ls-val r">£12,840</div><div class="ls-lbl">Remaining</div></div>
+            <div><div class="ls-val">£650</div><div class="ls-lbl">Per Month</div></div>
+            <div><div class="ls-val">22 mo</div><div class="ls-lbl">Left</div></div>
+          </div>
+          <div class="pbar pbar-lg"><div class="pfill" style="width:31%"></div></div>
+          <div class="plbl"><span>31% paid off</span><span>Payoff: Mar 2028</span></div>
+          <div class="tick-full done">✓ Payment made this month</div>
+        </div>
+        <div class="loan-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
+            <div><div class="loan-name">Personal Loan</div><div class="loan-meta">Started Mar 2024 · 6.5% APR</div></div>
+            <div class="edit-btns"><div class="ib">✎</div><div class="ib" style="color:#d64045">✕</div></div>
+          </div>
+          <div class="loan-stats">
+            <div><div class="ls-val">£8,000</div><div class="ls-lbl">Original</div></div>
+            <div><div class="ls-val r">£6,210</div><div class="ls-lbl">Remaining</div></div>
+            <div><div class="ls-val">£500</div><div class="ls-lbl">Per Month</div></div>
+            <div><div class="ls-val">13 mo</div><div class="ls-lbl">Left</div></div>
+          </div>
+          <div class="pbar pbar-lg"><div class="pfill" style="width:22%"></div></div>
+          <div class="plbl"><span>22% paid off</span><span>Payoff: Jun 2027</span></div>
+          <div class="tick-full">○ Mark payment made</div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn">🏠<span>Overview</span></div>
+        <div class="nav-btn">💰<span>Income</span></div>
+        <div class="nav-btn">📋<span>Bills</span></div>
+        <div class="nav-btn">🛒<span>Spend</span></div>
+        <div class="nav-btn active">🏦<span>Loans</span></div>
+        <div class="nav-btn">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCREEN 6: SAVINGS ── -->
+  <div class="screen-wrap">
+    <div class="screen-label">🎯 Savings Goals</div>
+    <div class="phone">
+      <div class="hdr"><div class="hdr-title">Budget<span>.</span></div><span class="hdr-sync">✓ Saved</span><span class="hdr-icon">↻</span><span class="hdr-icon">⚙</span></div>
+      <div class="content">
+        <div class="ph"><h2>Savings Goals</h2><button class="add-btn">+ Add</button></div>
+        <div class="hl-card">
+          <div class="card-lbl">Available Monthly Surplus</div>
+          <div class="card-big g">£1,423.50</div>
+        </div>
+        <div class="sav-card">
+          <div class="sav-name">Summer Holiday 🌍</div>
+          <div class="sav-meta">Target £3,000 · Saved £850</div>
+          <div class="pbar pbar-lg"><div class="pfill g" style="width:28%"></div></div>
+          <div class="plbl"><span>28% saved</span><span>£2,150 to go</span></div>
+          <div class="sav-foot"><div>Saving <strong>£300/mo</strong> → by <strong>Aug 2027</strong></div><button class="sav-btn">+ Add funds</button></div>
+        </div>
+        <div class="sav-card">
+          <div class="sav-name">New Laptop 💻</div>
+          <div class="sav-meta">Target £1,200 · Saved £400</div>
+          <div class="pbar pbar-lg"><div class="pfill g" style="width:33%"></div></div>
+          <div class="plbl"><span>33% saved</span><span>£800 to go</span></div>
+          <div class="sav-foot"><div>Saving <strong>£200/mo</strong> → by <strong>Jan 2027</strong></div><button class="sav-btn">+ Add funds</button></div>
+        </div>
+        <div class="sav-card">
+          <div class="sav-name">Emergency Fund 🛡️</div>
+          <div class="sav-meta">Target £5,000 · Saved £1,200</div>
+          <div class="pbar pbar-lg"><div class="pfill g" style="width:24%"></div></div>
+          <div class="plbl"><span>24% saved</span><span>£3,800 to go</span></div>
+          <div class="sav-foot"><div>Saving <strong>£150/mo</strong> → by <strong>Apr 2029</strong></div><button class="sav-btn">+ Add funds</button></div>
+        </div>
+      </div>
+      <div class="nav">
+        <div class="nav-btn">🏠<span>Overview</span></div>
+        <div class="nav-btn">💰<span>Income</span></div>
+        <div class="nav-btn">📋<span>Bills</span></div>
+        <div class="nav-btn">🛒<span>Spend</span></div>
+        <div class="nav-btn">🏦<span>Loans</span></div>
+        <div class="nav-btn active">🎯<span>Savings</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:48px;color:#5a8ea8;font-size:13px;line-height:1.8">
+  <strong style="color:#0a2a3a">Ready to use.</strong> Open <code style="background:#d4ecf7;padding:2px 6px;border-radius:4px;color:#0096c7">Budget/index.html</code> in your browser to run the live app.<br>
+  All figures shown above are examples — your real data is pre-loaded with your income.
+</div>
+
+</body>
+</html>
